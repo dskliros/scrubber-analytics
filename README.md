@@ -1,4 +1,4 @@
-# Temporary Title
+# Scrubber Analytics
 
 ## Overview
 
@@ -12,5 +12,5 @@ General Streamlit link: [`click here`](https://streamlit.io)).
 
 ## Details
 
-To navigate to the live version of the calculator: [`click here`](https://filters-calculator.streamlit.app/).
+To navigate to the live version of the calculator: [`click here`](https://scrubber-analytics.streamlit.app/).
 
