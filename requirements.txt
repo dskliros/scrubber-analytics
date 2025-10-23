@@ -1,4 +1,18 @@
+# Core web app
+streamlit
+
+# Data handling and visualization
 pandas
 numpy
 matplotlib
-streamlit
+
+# Database connectivity
+SQLAlchemy
+psycopg2-binary
+
+# Environment configuration
+python-decouple
+
+# Logging and utilities
+loguru
+
