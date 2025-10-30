@@ -1,10 +1,10 @@
 # Core web app
-streamlit
+streamlit>=1.28.0
 
-# Data handling and visualization
-pandas
-numpy
-matplotlib
+# Data handling and visualization
+pandas>=2.0.0
+numpy>=1.24.0
+plotly>=5.17.0
 
 # Database connectivity
 SQLAlchemy

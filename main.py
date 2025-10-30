@@ -1,8 +1,8 @@
-# main.py
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 # ======================================
 #      SCRUBBER ANALYTICS DASHBOARD
@@ -123,17 +123,23 @@ if not results.empty:
 
     # ---------- Visualization ----------
     deltaT_grid = np.linspace(0, 200, 401)
-    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=("Profit vs. Cooling ΔT", "SO₂ Emissions vs. Cooling ΔT"),
+        horizontal_spacing=0.12
+    )
 
     for _, r in fuels.iterrows():
         m_SO2_prod = (r["Sulfur_%"] / 100.0) * SO2_FACTOR
         profits, emissions = [], []
+        
         for ΔT in deltaT_grid:
             η = eta_of_deltaT(ΔT, eta_max, k)
             m_emit = m_SO2_prod * (1 - η)
             m_allowed = allowed_conc * m_exh
+            
             if m_emit > m_allowed:
-                profits.append(np.nan)
+                profits.append(None)
             else:
                 f_cost = filter_cost_per_kg(ΔT, m_exh, cp_kJ_per_kgK, elec_price_per_kWh)
                 profits.append(profit_per_kg(
@@ -141,24 +147,61 @@ if not results.empty:
                     energy_kWh_per_kg, price_energy_per_kWh
                 ))
             emissions.append(m_emit)
+        
+        # Add profit trace
+        fig.add_trace(
+            go.Scatter(
+                x=deltaT_grid,
+                y=profits,
+                mode='lines',
+                name=r["Fuel"],
+                legendgroup=r["Fuel"],
+                hovertemplate='ΔT: %{x:.1f} K<br>Profit: %{y:.4f} €/kg<extra></extra>'
+            ),
+            row=1, col=1
+        )
+        
+        # Add emissions trace
+        fig.add_trace(
+            go.Scatter(
+                x=deltaT_grid,
+                y=emissions,
+                mode='lines',
+                name=r["Fuel"],
+                legendgroup=r["Fuel"],
+                showlegend=False,
+                hovertemplate='ΔT: %{x:.1f} K<br>SO₂: %{y:.6f} kg/kg<extra></extra>'
+            ),
+            row=1, col=2
+        )
 
-        ax[0].plot(deltaT_grid, profits, label=r["Fuel"])
-        ax[1].plot(deltaT_grid, emissions, label=r["Fuel"])
+    # Add emission limit line
+    fig.add_trace(
+        go.Scatter(
+            x=[0, 200],
+            y=[allowed_conc * m_exh, allowed_conc * m_exh],
+            mode='lines',
+            name='Emission Limit',
+            line=dict(color='red', dash='dash'),
+            hovertemplate='Limit: %{y:.6f} kg/kg<extra></extra>'
+        ),
+        row=1, col=2
+    )
 
-    ax[0].set_xlabel("Cooling ΔT (K)")
-    ax[0].set_ylabel("Profit (€/kg fuel)")
-    ax[0].set_title("Profit vs. Cooling ΔT")
-    ax[0].grid(True)
-    ax[0].legend()
+    # Update axes
+    fig.update_xaxes(title_text="Cooling ΔT (K)", row=1, col=1)
+    fig.update_xaxes(title_text="Cooling ΔT (K)", row=1, col=2)
+    fig.update_yaxes(title_text="Profit (€/kg fuel)", row=1, col=1)
+    fig.update_yaxes(title_text="SO₂ emitted (kg/kg fuel)", row=1, col=2)
 
-    ax[1].set_xlabel("Cooling ΔT (K)")
-    ax[1].set_ylabel("SO₂ emitted (kg/kg fuel)")
-    ax[1].set_title("SO₂ Emissions vs. Cooling ΔT")
-    ax[1].axhline(y=allowed_conc * m_exh, color='red', linestyle='--', label='Limit')
-    ax[1].legend()
-    ax[1].grid(True)
+    # Update layout
+    fig.update_layout(
+        height=500,
+        showlegend=True,
+        hovermode='closest'
+    )
 
-    st.pyplot(fig)
+    st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("Please enter at least one valid fuel entry.")
 
