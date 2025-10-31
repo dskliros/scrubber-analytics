@@ -53,7 +53,7 @@ st.caption("Interactive SO₂ Emission Control & Profit Optimization Dashboard")
 st.sidebar.header("System Parameters")
 
 # Emission & economic parameters
-allowed_conc = st.sidebar.slider("Max SO₂ fraction in exhaust", 0.001, 0.01, 0.005, step=0.0005, format="%.4f")
+allowed_conc = st.sidebar.slider("Max SO₂ fraction in exhaust", 0.001, 0.01, 0.001, step=0.0005, format="%.4f")
 m_exh = st.sidebar.number_input("Exhaust mass (kg/kg fuel)", 1.0, 10.0, 3.0)
 cp_kJ_per_kgK = st.sidebar.number_input("Specific heat (kJ/kg·K)", 0.5, 2.0, 1.0)
 elec_price_per_kWh = st.sidebar.number_input("Electricity price (€/kWh)", 0.05, 0.5, 0.20)
